@@ -1,0 +1,33 @@
+import asyncio
+from playwright.async_api import async_playwright
+U='file:///home/claude/lichtwerk/dist/lichtwerk.html'; O='/home/claude/lichtwerk/test/out/'
+async def main():
+    async with async_playwright() as p:
+        b=await p.chromium.launch()
+        c=await b.new_context(viewport={'width':1440,'height':900}); pg=await c.new_page()
+        await pg.goto(U); await pg.wait_for_function('document.documentElement.dataset.ready==="1"'); await pg.wait_for_timeout(900)
+        await pg.click('.grp[data-g="wb"] .grp-h'); await pg.click('.grp[data-g="hsl"] .grp-h'); await pg.wait_for_timeout(300)
+        await pg.evaluate("document.querySelector('.grp[data-g=\"hsl\"]').scrollIntoView()"); await pg.wait_for_timeout(300)
+        await pg.screenshot(path=O+'d_hsl.png')
+        await pg.click('.grp[data-g="hsl"] .grp-h'); await pg.click('.grp[data-g="curve"] .grp-h'); await pg.click('.grp[data-g="grading"] .grp-h'); await pg.wait_for_timeout(500)
+        await pg.evaluate("document.querySelector('.grp[data-g=\"grading\"]').scrollIntoView()"); await pg.wait_for_timeout(300); await pg.screenshot(path=O+'d_grading.png')
+        await pg.click('#rail button[data-tab="crop"]'); await pg.wait_for_timeout(500); await pg.screenshot(path=O+'d_crop.png')
+        await pg.click('#rail button[data-tab="masks"]'); await pg.wait_for_timeout(300); await pg.click('[data-add="radial"]')
+        r=await pg.evaluate('(()=>{const r=document.querySelector("#cvMain").getBoundingClientRect();return [r.left,r.top,r.width,r.height]})()')
+        await pg.mouse.move(r[0]+r[2]*.6,r[1]+r[3]*.45); await pg.mouse.down(); await pg.mouse.move(r[0]+r[2]*.75,r[1]+r[3]*.6,steps=5); await pg.mouse.up(); await pg.wait_for_timeout(600)
+        await pg.screenshot(path=O+'d_masks.png')
+        await pg.click('button:has-text("Bild analysieren")'); await pg.wait_for_timeout(500); await pg.evaluate("document.querySelector('#panelBody').scrollTop=0"); await pg.screenshot(path=O+'d_zones.png')
+        await pg.click('#rail button[data-tab="brush"]'); await pg.wait_for_timeout(300); await pg.mouse.move(r[0]+r[2]*.5,r[1]+r[3]*.5); await pg.wait_for_timeout(300); await pg.screenshot(path=O+'d_brush.png')
+        await pg.click('#rail button[data-tab="presets"]'); await pg.wait_for_timeout(300); await pg.screenshot(path=O+'d_presets.png')
+        await pg.click('#rail button[data-tab="edit"]'); await pg.click('#btnSplit'); await pg.wait_for_timeout(600); await pg.screenshot(path=O+'d_split.png'); await pg.click('#btnSplit')
+        await pg.click('#btnZoom100'); await pg.wait_for_timeout(900); await pg.screenshot(path=O+'d_zoom.png'); await pg.click('#zoomVal')
+        await pg.click('#btnExport'); await pg.wait_for_timeout(300); await pg.screenshot(path=O+'d_export.png'); await pg.keyboard.press('Escape')
+        await pg.click('#btnCustomize'); await pg.wait_for_timeout(300); await pg.screenshot(path=O+'d_custom.png'); await pg.keyboard.press('Escape')
+        c2=await b.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True); m=await c2.new_page()
+        await m.goto(U); await m.wait_for_function('document.documentElement.dataset.ready==="1"'); await m.wait_for_timeout(900); await m.screenshot(path=O+'m_edit.png')
+        await m.tap('#rail button[data-tab="masks"]'); await m.wait_for_timeout(300); await m.screenshot(path=O+'m_masks.png')
+        await m.tap('#rail button[data-tab="crop"]'); await m.wait_for_timeout(400); await m.screenshot(path=O+'m_crop.png')
+        await m.tap('#btnExport'); await m.wait_for_timeout(300); await m.screenshot(path=O+'m_export.png')
+        c3=await b.new_context(viewport={'width':1024,'height':700}); t=await c3.new_page(); await t.goto(U); await t.wait_for_function('document.documentElement.dataset.ready==="1"'); await t.wait_for_timeout(900); await t.screenshot(path=O+'t_small.png')
+        await b.close()
+asyncio.run(main())

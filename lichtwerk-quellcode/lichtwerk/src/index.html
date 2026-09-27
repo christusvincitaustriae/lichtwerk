@@ -1,0 +1,80 @@
+<title>Lichtwerk</title>
+<meta name="description" content="Lichtwerk – Fotobearbeitung im Browser. Alles läuft lokal, nichts wird hochgeladen.">
+<meta name="theme-color" content="#05060a">
+<style>
+/*STYLES*/
+</style>
+<div class="app" id="app">
+  <div class="ambient" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+  <header class="topbar glass" id="topbar">
+    <div class="brand" aria-label="Lichtwerk">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bfe0ff"/><stop offset="1" stop-color="#6d8dff"/></linearGradient><linearGradient id="lg2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ffb45e"/><stop offset="1" stop-color="#ff6fae"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="9" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.25)"/><circle cx="13" cy="14" r="6.5" fill="url(#lg1)" opacity=".95"/><circle cx="19.5" cy="18.5" r="6.5" fill="url(#lg2)" opacity=".8"/></svg>
+      <span>Lichtwerk</span>
+    </div>
+    <div class="tb-group">
+      <button class="btn" id="btnOpen" title="Foto öffnen (Strg+O)"><svg data-i="open"></svg><span class="lbl">Öffnen</span></button>
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/tiff,.tif,.tiff,image/avif,image/gif,image/bmp" hidden>
+      <span class="filechip" id="fileChip"></span>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="icon-btn" id="btnUndo" title="Rückgängig (Strg+Z)" aria-label="Rückgängig"><svg data-i="undo"></svg></button>
+      <button class="icon-btn" id="btnRedo" title="Wiederholen (Strg+Umschalt+Z)" aria-label="Wiederholen"><svg data-i="redo"></svg></button>
+    </div>
+    <div class="spacer"></div>
+    <div class="tb-group">
+      <button class="icon-btn" id="btnBefore" title="Vorher/Nachher (\)" aria-label="Vorher/Nachher" aria-pressed="false"><svg data-i="before"></svg></button>
+      <button class="icon-btn" id="btnCustomize" title="Werkzeugkasten anpassen" aria-label="Werkzeugkasten anpassen"><svg data-i="tune"></svg></button>
+      <button class="icon-btn" id="btnMobile" title="Mobil-Modus umschalten" aria-label="Mobil-Modus" aria-pressed="false"><svg data-i="mobile"></svg></button>
+      <button class="btn primary" id="btnExport" title="Exportieren (Strg+E)"><svg data-i="export"></svg><span class="lbl">Exportieren</span></button>
+    </div>
+  </header>
+  <main class="workspace">
+    <section class="stage" id="stage" aria-label="Bildansicht">
+      <canvas id="cvBack" hidden></canvas>
+      <canvas id="cvMain"></canvas>
+      <svg class="overlay" id="overlay" aria-hidden="true"></svg>
+      <div class="empty" id="empty" hidden>
+        <div class="empty-card glass">
+          <h2>Foto öffnen und loslegen</h2>
+          <p>JPEG, PNG, WebP oder TIFF hier ablegen. Die Bearbeitung passiert komplett auf deinem Gerät.</p>
+          <div class="row"><button class="btn primary" id="btnOpen2"><svg data-i="open"></svg>Foto öffnen</button><button class="btn" id="btnSample">Beispielbild laden</button></div>
+        </div>
+      </div>
+      <div class="badge-before glass" id="badgeBefore" hidden>Vorher</div>
+      <div class="hint glass" id="hint" hidden></div>
+      <div class="hud glass" id="hud">
+        <button class="icon-btn sm" id="btnZoomOut" title="Verkleinern (−)" aria-label="Verkleinern"><svg data-i="minus"></svg></button>
+        <button class="zoomval" id="zoomVal" title="Einpassen (0)">100%</button>
+        <button class="icon-btn sm" id="btnZoomIn" title="Vergrößern (+)" aria-label="Vergrößern"><svg data-i="plus"></svg></button>
+        <button class="icon-btn sm hide-m" id="btnZoom100" title="Originalgröße 100% (1)" aria-label="100%"><svg data-i="px"></svg></button>
+        <span class="sep"></span>
+        <button class="icon-btn sm" id="btnSplit" title="Vorher/Nachher geteilt (Y)" aria-label="Geteilte Ansicht"><svg data-i="split"></svg></button>
+        <button class="icon-btn sm" id="btnClip" title="Beschnittwarnung (J)" aria-label="Beschnittwarnung"><svg data-i="clip"></svg></button>
+      </div>
+    </section>
+    <nav class="rail glass" id="rail" aria-label="Werkzeuge">
+      <button data-tab="edit" class="on" aria-label="Bearbeiten"><svg data-i="sliders"></svg><span class="lbl">Bearbeiten</span><span class="tip">Bearbeiten (E)</span></button>
+      <button data-tab="crop" aria-label="Zuschneiden"><svg data-i="crop"></svg><span class="lbl">Zuschnitt</span><span class="tip">Zuschneiden &amp; Perspektive (R)</span></button>
+      <button data-tab="masks" aria-label="Masken"><svg data-i="mask"></svg><span class="lbl">Masken</span><span class="tip">Masken &amp; lokale Korrekturen (M)</span></button>
+      <button data-tab="brush" aria-label="Abwedeln und Nachbelichten"><svg data-i="brush"></svg><span class="lbl">Pinsel</span><span class="tip">Abwedeln &amp; Nachbelichten (B)</span></button>
+      <button data-tab="presets" aria-label="Presets und Verlauf"><svg data-i="presets"></svg><span class="lbl">Presets</span><span class="tip">Presets &amp; Verlauf (P)</span></button>
+    </nav>
+    <aside class="panel glass" id="panel" aria-label="Einstellungen">
+      <div class="histo" id="histoWrap">
+        <div class="histo-box">
+          <canvas id="histo" width="600" height="184" aria-label="Histogramm"></canvas>
+          <button class="clipbtn l" id="clipL" title="Tiefen-Beschnitt anzeigen" aria-label="Tiefen-Beschnitt anzeigen"></button>
+          <button class="clipbtn r" id="clipR" title="Lichter-Beschnitt anzeigen" aria-label="Lichter-Beschnitt anzeigen"></button>
+        </div>
+        <div class="histo-meta"><span id="histoInfo">–</span><span id="histoPix"></span></div>
+      </div>
+      <div class="panel-body" id="panelBody"></div>
+    </aside>
+  </main>
+  <div id="modalRoot"></div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+</div>
+<script>
+/*SCRIPTS*/
+</script>
